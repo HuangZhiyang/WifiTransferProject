@@ -48,11 +48,6 @@ public class WifiTransfer {
 									sock.getInputStream()
 								)
 					);
-			
-		   
-		    
-			
-			
 			String name = fileToSend.getName();
 			doutSock.writeInt(name.length());
 			doutSock.writeChars(name);
