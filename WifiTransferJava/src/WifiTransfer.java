@@ -38,22 +38,6 @@ public class WifiTransfer {
 							new OutputStreamWriter(sock.getOutputStream()
 							)),true
 					);
-			
-			DataInputStream din = new DataInputStream(
-									new BufferedInputStream(
-										new FileInputStream("D:\15070715.xls")
-							)
-					);
-			
-			DataInputStream dout = new DataOutputStream(
-					new BfferedOutputStream(
-						new FileInputStream("D:\15070715.xls")
-							)
-			);
-			while(din.readByte()!= -1){
-				
-				
-			}
 			for(int i=0;i< 10;i++){
 				//System.out.println("please input:");
 				out.println("hello " +i);
