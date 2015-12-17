@@ -25,14 +25,23 @@ public class WifiTransferSever {
 			PrintWriter out = new PrintWriter(new BufferedWriter(
 					new OutputStreamWriter(sock.getOutputStream())), true);
 			
-			DataOutputStream fileOut = new DataOutputStream(
-						new BufferedOutputStream(
-									new FileOutputStream("./received.xls")
-								)
-					);
+		
+			int  fileNameLen = in.readInt();
+			String fileName ="";
+			for(int i=0;i<fileNameLen;i++){
+				fileName = fileName + in.readChar();
+			}
+			System.out.println("待接收文件名字为" + fileName);
 			long length = in.readLong();
 			System.out.println("待接收文件长度为" + length);
-
+			
+			DataOutputStream fileOut = new DataOutputStream(
+					new BufferedOutputStream(
+								new FileOutputStream(
+										new File(fileName))
+							)
+				);
+			
 			byte[] buf = new byte[2048];
 			long lenRecv = 0;
 			while (true) {

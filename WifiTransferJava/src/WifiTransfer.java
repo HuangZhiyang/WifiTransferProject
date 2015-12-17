@@ -52,9 +52,12 @@ public class WifiTransfer {
 		   
 		    
 			
+			
+			String name = fileToSend.getName();
+			doutSock.writeInt(name.length());
+			doutSock.writeChars(name);
 			long length = fileToSend.length();
 			doutSock.writeLong(length);
-			
 			byte []buf = new byte[2048];
 			long lenTransfer = 0;
 			while(true){
