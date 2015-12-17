@@ -1,4 +1,5 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -19,6 +20,7 @@ import java.net.UnknownHostException;
 public class WifiTransfer {
 	
 	private static final int SERVER_PORT = 6789;
+	private static final String TAG = "WifiTransfer";
 	
 	public static void main(String[]args){
 
@@ -29,23 +31,44 @@ public class WifiTransfer {
 			
 			Socket sock = new Socket("127.0.0.1",SERVER_PORT);
 			//Socket sock = new Socket("127.0.0.1",SERVER_PORT);
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(sock.getInputStream())
+			DataOutputStream doutSock = new DataOutputStream(
+					new BufferedOutputStream(
+								sock.getOutputStream()
+							)
+					); 
+			File fileToSend = new File("D:\\15071705.xls");
+			DataInputStream dinFile = new DataInputStream(
+						new BufferedInputStream(
+									new FileInputStream(fileToSend)
+								)
 					);
 			
-			PrintWriter out = new PrintWriter(
-					new BufferedWriter(
-							new OutputStreamWriter(sock.getOutputStream()
-							)),true
+		    BufferedReader  dinSock = new BufferedReader(
+						new InputStreamReader(
+									sock.getInputStream()
+								)
 					);
-			for(int i=0;i< 10;i++){
-				//System.out.println("please input:");
-				out.println("hello " +i);
-				String str= in.readLine();
-				System.out.println(str);
+			
+		   
+		    
+			
+			long length = fileToSend.length();
+			doutSock.writeLong(length);
+			
+			byte []buf = new byte[2048];
+			long lenTransfer = 0;
+			while(true){
+				int num = dinFile.read(buf);
+				if(num != -1){
+					doutSock.write(buf, 0, num);
+					lenTransfer += num;
+					System.out.println("文件一共传输了"+lenTransfer+"字节");
+					doutSock.flush();
+				}else{
+					System.out.println(TAG+"haha,文件传送完了");
+					break;
+				}
 			}
-			out.println("END");
-			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
