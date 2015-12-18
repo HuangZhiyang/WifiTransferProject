@@ -22,9 +22,18 @@ public class WifiTransfer {
 	
 	private static final int SERVER_PORT = 6789;
 	private static final String TAG = "WifiTransfer";
+	private static WifiTransfer transfer;
 	
 	public static void main(String[]args){
-
+		if(transfer == null)
+		{
+			transfer = new WifiTransfer();
+		}
+		transfer.sendFile("D:\\15071705.xls");
+		
+	}
+	
+	public void sendFile(String fileName){
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 			System.out.println("±¾»úµØÖ·£º" + addr.getHostAddress());
@@ -37,7 +46,8 @@ public class WifiTransfer {
 								sock.getOutputStream()
 							)
 					); 
-			File fileToSend = new File("D:\\15071705.xls");
+			//File fileToSend = new File("D:\\15071705.xls");
+			File fileToSend = new File(fileName);
 			DataInputStream dinFile = new DataInputStream(
 						new BufferedInputStream(
 									new FileInputStream(fileToSend)

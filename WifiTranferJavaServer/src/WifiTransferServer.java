@@ -3,13 +3,21 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class WifiTransferSever {
+public class WifiTransferServer {
 
 	private static final int RECV_PORT = 6789;
 	private static final String TAG = "WifiTransferServer";
-
+	private static WifiTransferServer transferServer;
+	
 	public static void main(String[] args) {
-
+		
+		if(transferServer == null){
+			transferServer = new WifiTransferServer();
+		}
+		transferServer.Recv();
+		
+	}
+	public void Recv(){
 		ServerSocket ssocket;
 		try {
 			ssocket = new ServerSocket(RECV_PORT);
