@@ -34,13 +34,39 @@ public class WifiTransfer {
 	}
 	
 	public void sendFile(String fileName){
-		try {
-			InetAddress addr = InetAddress.getLocalHost();
-			System.out.println("本机地址：" + addr.getHostAddress());
-			System.out.println("本机名字: " + addr.getHostName());
+		Socket sock =null;
+		while (true) {
+			try {
+				
+				InetAddress addr = InetAddress.getLocalHost();
+				System.out.println("本机地址：" + addr.getHostAddress());
+				System.out.println("本机名字: " + addr.getHostName());
+				System.out.println("连接服务器:"+"127.0.0.1");
+				sock = new Socket("127.0.0.1", SERVER_PORT);
+				
+				if(sock != null){ 
+					System.out.println("连接服务器端成功");
+					break;
+				}
+			} catch (ConnectException e) {
+				System.out.println("连接失败");
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			Socket sock = new Socket("127.0.0.1",SERVER_PORT);
-			//Socket sock = new Socket("127.0.0.1",SERVER_PORT);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		try {
 			DataOutputStream doutSock = new DataOutputStream(
 					new BufferedOutputStream(
 								sock.getOutputStream()
@@ -78,12 +104,6 @@ public class WifiTransfer {
 					break;
 				}
 			}
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			System.out.println("UnkownHostException");
-			e.printStackTrace();
-		}catch(ConnectException e){
-			System.out.println("连接服务器端失败，请先开启服务器端");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("io exception ");
