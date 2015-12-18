@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -69,9 +70,13 @@ public class WifiTransfer {
 			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
+			System.out.println("UnkownHostException");
 			e.printStackTrace();
+		}catch(ConnectException e){
+			System.out.println("连接服务器端失败，请先开启服务器端");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("io exception ");
 			e.printStackTrace();
 		}
 	}
