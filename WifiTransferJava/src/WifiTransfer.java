@@ -33,7 +33,7 @@ public class WifiTransfer {
 		
 	}
 	
-	public void sendFile(String fileName){
+	public void sendFile(String filePath){
 		Socket sock =null;
 		while (true) {
 			try {
@@ -49,7 +49,7 @@ public class WifiTransfer {
 					break;
 				}
 			} catch (ConnectException e) {
-				System.out.println("连接失败");
+				System.out.println("连接失败，请确认服务器端是否已开启？");
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -57,7 +57,6 @@ public class WifiTransfer {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
@@ -67,13 +66,14 @@ public class WifiTransfer {
 		}
 		
 		try {
+			
 			DataOutputStream doutSock = new DataOutputStream(
 					new BufferedOutputStream(
 								sock.getOutputStream()
 							)
 					); 
 			//File fileToSend = new File("D:\\15071705.xls");
-			File fileToSend = new File(fileName);
+			File fileToSend = new File(filePath);
 			DataInputStream dinFile = new DataInputStream(
 						new BufferedInputStream(
 									new FileInputStream(fileToSend)
@@ -85,11 +85,15 @@ public class WifiTransfer {
 									sock.getInputStream()
 								)
 					);
+		    
 			String name = fileToSend.getName();
+			
 			doutSock.writeInt(name.length());
 			doutSock.writeChars(name);
+			
 			long length = fileToSend.length();
 			doutSock.writeLong(length);
+			
 			byte []buf = new byte[2048];
 			long lenTransfer = 0;
 			while(true){
