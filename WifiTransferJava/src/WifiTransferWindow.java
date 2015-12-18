@@ -23,8 +23,12 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 import javax.swing.JProgressBar;
+import javax.swing.JLabel;
 
 
 public class WifiTransferWindow extends JFrame {
@@ -35,7 +39,10 @@ public class WifiTransferWindow extends JFrame {
 	private JFrame frame;
 	private static final int SERVER_PORT = 6789;
 	private static final String TAG = "WifiTransfer";
-	
+	private JProgressBar progressBarFileSend; 
+	private Timer fileSendTimer;
+	private TimerTask timerTaskProgress;
+	private int sendPercent=0;
 	/**
 	 * Launch the application.
 	 */
@@ -85,6 +92,10 @@ public class WifiTransferWindow extends JFrame {
 		contentPane.add(textField_1);
 		textField_1.setColumns(10);
 		
+		progressBarFileSend = new JProgressBar();
+		progressBarFileSend.setBounds(225, 210, 146, 19);
+		contentPane.add(progressBarFileSend);
+		
 		JButton btnTransFile = new JButton("\u53D1\u9001\u6587\u4EF6");
 		btnTransFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -105,12 +116,14 @@ public class WifiTransferWindow extends JFrame {
 				transferFile(new File(chooserFileToSend.getSelectedFile().getAbsolutePath()));
 			}
 		});
-		btnTransFile.setBounds(45, 206, 93, 23);
+		btnTransFile.setBounds(45, 210, 93, 23);
 		contentPane.add(btnTransFile);
 		
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setBounds(171, 210, 146, 19);
-		contentPane.add(progressBar);
+		JLabel label = new JLabel("\u53D1\u9001\u8FDB\u5EA6\uFF1A");
+		label.setBounds(148, 214, 67, 15);
+		contentPane.add(label);
+		
+
 	}
 	
 	
@@ -146,6 +159,17 @@ public class WifiTransferWindow extends JFrame {
 			doutSock.writeLong(length);
 			byte []buf = new byte[2048];
 			long lenTransfer = 0;
+			
+			fileSendTimer =  new Timer();
+			timerTaskProgress = new TimerTask(){
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					progressBarFileSend.setValue(sendPercent);
+				}
+				
+			};
+			fileSendTimer.schedule(timerTaskProgress, 0, 1000);
 			while(true){
 				int num = dinFile.read(buf);
 				if(num != -1){
@@ -153,11 +177,17 @@ public class WifiTransferWindow extends JFrame {
 					lenTransfer += num;
 					System.out.println("文件一共传输了"+lenTransfer+"字节");
 					doutSock.flush();
+					if(lenTransfer == length){
+						System.out.println(TAG+"haha,文件传送完了");
+						break;
+					}
+					sendPercent = (int)((lenTransfer*1.0)/lenTransfer*100);
 				}else{
-					System.out.println(TAG+"haha,文件传送完了");
 					break;
 				}
 			}
+			fileSendTimer.cancel();
+			progressBarFileSend.setValue(100);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			System.out.println("UnkownHostException");
@@ -170,5 +200,4 @@ public class WifiTransferWindow extends JFrame {
 			e.printStackTrace();
 		}
 	}
-	
 }
