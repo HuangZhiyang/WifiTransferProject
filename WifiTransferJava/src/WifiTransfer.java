@@ -27,8 +27,8 @@ public class WifiTransfer {
 
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
-			System.out.println(addr.getHostAddress());
-			System.out.println(addr.getHostName());
+			System.out.println("本机地址：" + addr.getHostAddress());
+			System.out.println("本机名字: " + addr.getHostName());
 			
 			Socket sock = new Socket("127.0.0.1",SERVER_PORT);
 			//Socket sock = new Socket("127.0.0.1",SERVER_PORT);
