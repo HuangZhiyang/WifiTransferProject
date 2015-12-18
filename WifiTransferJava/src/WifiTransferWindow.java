@@ -29,6 +29,8 @@ import java.util.TimerTask;
 
 import javax.swing.JProgressBar;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Color;
 
 
 public class WifiTransferWindow extends JFrame {
@@ -40,9 +42,8 @@ public class WifiTransferWindow extends JFrame {
 	private static final int SERVER_PORT = 6789;
 	private static final String TAG = "WifiTransfer";
 	private JProgressBar progressBarFileSend; 
-	private Timer fileSendTimer;
-	private TimerTask timerTaskProgress;
-	private int sendPercent=0;
+	FileSendProgress  fileSendProgress = null;
+	private int sendPercent=50;
 	/**
 	 * Launch the application.
 	 */
@@ -93,6 +94,7 @@ public class WifiTransferWindow extends JFrame {
 		textField_1.setColumns(10);
 		
 		progressBarFileSend = new JProgressBar();
+		progressBarFileSend.setForeground(Color.MAGENTA);
 		progressBarFileSend.setBounds(225, 210, 146, 19);
 		contentPane.add(progressBarFileSend);
 		
@@ -113,7 +115,7 @@ public class WifiTransferWindow extends JFrame {
 				    		   chooserFileToSend.getSelectedFile().getAbsolutePath());
 				       		   //+chooserStylePhoto.getSelectedFile().getName());
 				    }
-				transferFile(new File(chooserFileToSend.getSelectedFile().getAbsolutePath()));
+					sendFile(chooserFileToSend.getSelectedFile().getAbsolutePath());
 			}
 		});
 		btnTransFile.setBounds(45, 210, 93, 23);
@@ -127,20 +129,46 @@ public class WifiTransferWindow extends JFrame {
 	}
 	
 	
-	public void transferFile(File fileToSend){
+	public void sendFile(String  filePath){
+		Socket sock =null;
+
+		while (true) {
+			try {
+				InetAddress addr = InetAddress.getLocalHost();
+				System.out.println("本机地址：" + addr.getHostAddress());
+				System.out.println("本机名字: " + addr.getHostName());
+				System.out.println("连接服务器:"+"127.0.0.1");
+				sock = new Socket("127.0.0.1", SERVER_PORT);
+				
+				if(sock != null){ 
+					System.out.println("连接服务器端成功");
+					break;
+				}
+			} catch (ConnectException e) {
+				System.out.println("连接失败，请确认服务器端是否已开启？");
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		try {
-			InetAddress addr = InetAddress.getLocalHost();
-			System.out.println("本机地址：" + addr.getHostAddress());
-			System.out.println("本机名字: " + addr.getHostName());
 			
-			Socket sock = new Socket("127.0.0.1",SERVER_PORT);
-			//Socket sock = new Socket("127.0.0.1",SERVER_PORT);
 			DataOutputStream doutSock = new DataOutputStream(
 					new BufferedOutputStream(
 								sock.getOutputStream()
 							)
 					); 
-			//File fileToSend = new File("D:\\15071705.xls");
+			File fileToSend = new File(filePath);
 			DataInputStream dinFile = new DataInputStream(
 						new BufferedInputStream(
 									new FileInputStream(fileToSend)
@@ -160,33 +188,26 @@ public class WifiTransferWindow extends JFrame {
 			byte []buf = new byte[2048];
 			long lenTransfer = 0;
 			
-			fileSendTimer =  new Timer();
-			timerTaskProgress = new TimerTask(){
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					progressBarFileSend.setValue(sendPercent);
-				}
-				
-			};
-			fileSendTimer.schedule(timerTaskProgress, 0, 1000);
+			sendPercent = 0;
+			fileSendProgress = new FileSendProgress();
+			fileSendProgress.start();
 			while(true){
 				int num = dinFile.read(buf);
 				if(num != -1){
 					doutSock.write(buf, 0, num);
 					lenTransfer += num;
-					System.out.println("文件一共传输了"+lenTransfer+"字节");
+					//System.out.println("文件一共传输了"+lenTransfer+"字节");
 					doutSock.flush();
 					if(lenTransfer == length){
 						System.out.println(TAG+"haha,文件传送完了");
 						break;
 					}
-					sendPercent = (int)((lenTransfer*1.0)/lenTransfer*100);
+					sendPercent = (int)( ((lenTransfer*1.0)/length) * 100);
 				}else{
 					break;
 				}
 			}
-			fileSendTimer.cancel();
+			sendPercent = 100;
 			progressBarFileSend.setValue(100);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -198,6 +219,24 @@ public class WifiTransferWindow extends JFrame {
 			// TODO Auto-generated catch block
 			System.out.println("io exception ");
 			e.printStackTrace();
+		} 
+	}
+	
+	class FileSendProgress extends Thread{
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			while (sendPercent < 100) {
+				try {
+					System.out.println("文件已发送"+sendPercent+"%");
+					progressBarFileSend.setValue(sendPercent);
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
