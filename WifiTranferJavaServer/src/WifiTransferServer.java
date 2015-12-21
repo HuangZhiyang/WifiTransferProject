@@ -23,6 +23,9 @@ public class WifiTransferServer {
 		Socket sock;
 		
 		try {
+			InetAddress addr = InetAddress.getLocalHost();
+			System.out.println("本服务器地址:"+ addr.getHostAddress());
+			System.out.println("本服务器名:"  + addr.getHostName());
 			ssocket = new ServerSocket(RECV_PORT);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -32,9 +35,6 @@ public class WifiTransferServer {
 		while(true)
 		{
 			try {
-				InetAddress addr = InetAddress.getLocalHost();
-				System.out.println("本服务器地址:"+ addr.getHostAddress());
-				System.out.println("本服务器名:"  + addr.getHostName());
 				sock = ssocket.accept();
 				
 				if(sock != null ){
@@ -62,7 +62,6 @@ public class WifiTransferServer {
 			// TODO Auto-generated method stub
 			super.run();
 			try {
-				System.out.println(TAG + "huanzhiyang");
 				DataInputStream in = new DataInputStream(new BufferedInputStream(
 						this.sock.getInputStream()));
 				
@@ -82,12 +81,13 @@ public class WifiTransferServer {
 
 				byte[] buf = new byte[2048];
 				long lenRecv = 0;
+				System.out.println("开始接收文件");
 				while (true) {
 					int num = in.read(buf);
 					if (num != -1) {
 						fileOut.write(buf, 0, num);
 						lenRecv += num;
-						System.out.println("文件已经接收" + lenRecv + "字节");
+						//System.out.println("文件已经接收" + lenRecv + "字节");
 						if (lenRecv >= length) {
 							fileOut.close();
 							in.close();
@@ -97,7 +97,7 @@ public class WifiTransferServer {
 						break;
 					}
 				}
-				System.out.println("文件接收完了");
+				System.out.println("文件接收完了，共接收"+lenRecv+"字节");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
